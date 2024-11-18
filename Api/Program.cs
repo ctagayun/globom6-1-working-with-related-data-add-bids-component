@@ -1,3 +1,4 @@
+using Api.Migrations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MiniValidation;
@@ -144,20 +145,31 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
 
       //*Else
       var bids = await bidRepo.Get(houseId); //*get the DTO 
-         return Results.Problem($"House with ID {houseId} not found.",
-              statusCode: 404);
+      return Results.Ok(bids);
+    
+   }).ProducesProblem(404).Produces(StatusCodes.Status200OK);
 
-     if (house == null)
-       //*to determine the problem the standard way of doing this is to use the "Results"
-       //*object to determine the problem
-       return Results.Problem($"House with ID {houseId} not found.",
-              statusCode: 404);
 
-     //*Use the result object to determine to the status code to return.
-     return Results.Ok(house);
+  //*Post
+  app.MapPost("/house/{houseId:int}/bids", 
+      async(int houseId, [FromBody] BidDto dto, IBidRepository repo) =>
+   {
+     if(dto.HouseId != houseId)  
+        return Results.Problem("No match", statusCode: StatusCodes.Status400BadRequest);
+
+     //*the type of "out var errors" is dictionary of string array. 
+     if( !MiniValidator.TryValidate(dto, out var errors)) 
+       return Results.ValidationProblem(errors);
+
+     var newBid = await repo.Add(dto);
+     return Results.Created($"/houses/{newBid.HouseId}/bids", newBid);
+     
      //*This is the metadata forSwagger has to be added again so that it knows 
-     //*EP producess a 404 and 200OK
-   }).ProducesProblem(404).Produces<HouseDetailDto>(StatusCodes.Status200OK);
+     //*EP produces a 404 and ProducesValidationProblem()
+   }).ProducesValidationProblem()
+     .ProducesProblem(400)
+     .Produces<BidDto>(StatusCodes.Status201Created);
+    
 
 app.Run();
 
