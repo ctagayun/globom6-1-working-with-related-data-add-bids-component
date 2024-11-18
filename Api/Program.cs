@@ -125,7 +125,39 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
 
      //*This is the metadata forSwagger has to be added again so that it knows 
      //*EP producess a 201
-   }).ProducesProblem(404).Produces<HouseDetailDto>(StatusCodes.Status200OK);      
+   }).ProducesProblem(404).Produces<HouseDetailDto>(StatusCodes.Status200OK);   
+
+   //*=================================
+   //*BidEntity endpoints 
+   //*=================================
+
+   //*The first parameter is the url to bids table
+   //*The second parameter is IHouseRepository coming from the DEPENDENCY INJECTOR CONTAINER
+  app.MapGet("/house/{houseId:int}/bids", async(
+           int houseId,
+           IHouseRepository houseRepo,
+           IBidRepository bidRepo) =>
+   {
+      if (await houseRepo.Get(houseId) == null) //*The house entity doesn't exist
+         return Results.Problem($"House with ID {houseId} not found.",
+              statusCode: 404);
+
+      //*Else
+      var bids = await bidRepo.Get(houseId); //*get the DTO 
+         return Results.Problem($"House with ID {houseId} not found.",
+              statusCode: 404);
+
+     if (house == null)
+       //*to determine the problem the standard way of doing this is to use the "Results"
+       //*object to determine the problem
+       return Results.Problem($"House with ID {houseId} not found.",
+              statusCode: 404);
+
+     //*Use the result object to determine to the status code to return.
+     return Results.Ok(house);
+     //*This is the metadata forSwagger has to be added again so that it knows 
+     //*EP producess a 404 and 200OK
+   }).ProducesProblem(404).Produces<HouseDetailDto>(StatusCodes.Status200OK);
 
 app.Run();
 

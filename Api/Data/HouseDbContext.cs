@@ -18,8 +18,8 @@ public class HouseDbContext: DbContext
     //We set the initial value of Houses to an empty DbSet using the Set method.
     public DbSet<HouseEntity> Houses => Set<HouseEntity> ();
     
-    //Create a property called "Bids"  
-    //public DbSet<BidEntity> Bids => Set<BidEntity>();
+    //Create a property called "Bids" for the BidEntity
+    public DbSet<BidEntity> Bids => Set<BidEntity>();
 
     //Now we have to configure which database to use by overriding OnConfiguring()
     //of the HouseDbContext

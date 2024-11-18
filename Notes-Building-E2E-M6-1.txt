@@ -387,4 +387,23 @@ Module 5: Creating, Updating and Deleting Data
 Module 6: Working withe related data add bid component
    - https://app.pluralsight.com/ilx/video-courses/clips/d32eed30-599e-4646-b3d5-9d92cb16b1c7
 
-   -
+   - Create BidEntity in api/data
+   - next add to api/data/HouseDbContext the BidEntity
+   - next go to api/data/SeedData and add BidEntity sample data
+   - now that the dbConctext is aware of the BidEntity lets run the migration
+       go to api folder -->  dotnet ef migration add bids
+
+   - go to api/migrations you will see that there is a bids migration file: 20241118215452_bids
+
+   - run dotnet ef database update to execute "20241118215452_bids"
+
+   - next add dto in api/dtos/BidDto: https://app.pluralsight.com/ilx/video-courses/fbbac3b2-0e56-464b-92f2-0b877f92f12c/4f28ee7a-2200-4d8a-b6c1-fcc044126a0d/98529f81-af77-4df7-96d0-ef624051260d
+
+   - next add BidRepository to api/data (See my comments)
+
+   - next go to api/program.cs and register the BidRepository to the dependency injection container.
+
+   - next add the BidEndpoints: 
+       - https://app.pluralsight.com/ilx/video-courses/fbbac3b2-0e56-464b-92f2-0b877f92f12c/4f28ee7a-2200-4d8a-b6c1-fcc044126a0d/4f34e6fd-3435-4a89-abc0-4f148be9dad9
+
+       - go to Program.cs
