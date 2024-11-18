@@ -170,6 +170,6 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
      .ProducesProblem(400)
      .Produces<BidDto>(StatusCodes.Status201Created);
     
-
+   //*The class gets a littlebit bloated now
 app.Run();
 
