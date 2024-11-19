@@ -132,11 +132,11 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
    //*BidEntity endpoints 
    //*=================================
 
-   //*The first parameter is the url to bids table
-   //*The second parameter is IHouseRepository coming from the DEPENDENCY INJECTOR CONTAINER
+   //*The first parameter is the url to bids table. Use the "house" as the base and then add "bids"
+   //*The second parameter we ask DEPENDENCY INJECTOR CONTAINER for IHouseRepository and IBidRepository we ask 
   app.MapGet("/house/{houseId:int}/bids", async(
            int houseId,
-           IHouseRepository houseRepo,
+           IHouseRepository houseRepo, 
            IBidRepository bidRepo) =>
    {
       if (await houseRepo.Get(houseId) == null) //*The house entity doesn't exist
@@ -154,7 +154,7 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
   app.MapPost("/house/{houseId:int}/bids", 
       async(int houseId, [FromBody] BidDto dto, IBidRepository repo) =>
    {
-     if(dto.HouseId != houseId)  
+     if(dto.HouseId != houseId)  //* Is there a houseId mismatch?
         return Results.Problem("No match", statusCode: StatusCodes.Status400BadRequest);
 
      //*the type of "out var errors" is dictionary of string array. 
@@ -162,14 +162,17 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
        return Results.ValidationProblem(errors);
 
      var newBid = await repo.Add(dto);
+
+     //*return where new bid can be found: "/houses/{newBid.HouseId}/bids"
      return Results.Created($"/houses/{newBid.HouseId}/bids", newBid);
      
-     //*This is the metadata forSwagger has to be added again so that it knows 
-     //*EP produces a 404 and ProducesValidationProblem()
+     //*Then a the metadata for Swagger so that it knows EP produces a 404 
+     //*and ProducesValidationProblem() and StatusCodes.Status201Created
    }).ProducesValidationProblem()
      .ProducesProblem(400)
      .Produces<BidDto>(StatusCodes.Status201Created);
     
-   //*The class gets a littlebit bloated now
+   //*The class gets a littlebit bloated now. To solve this problem we can 
+   //* create static class WebApplicationHouseExtensions  in /api
 app.Run();
 
