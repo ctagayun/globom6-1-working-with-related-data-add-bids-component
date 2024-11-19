@@ -151,27 +151,35 @@ app.MapGet("/house/{houseId:int}", async(int houseId,IHouseRepository repo) =>
 
 
   //*Post
-  app.MapPost("/house/{houseId:int}/bids", 
-      async(int houseId, [FromBody] BidDto dto, IBidRepository repo) =>
-   {
-     if(dto.HouseId != houseId)  //* Is there a houseId mismatch?
-        return Results.Problem("No match", statusCode: StatusCodes.Status400BadRequest);
+//   app.MapPost("/house/{houseId:int}/bids", 
+//     async (int houseId, [FromBody] BidDto dto, IBidRepository repo) => 
+// {   
+//     if (dto.HouseId != houseId) //* Is there a houseId mismatch?
+//         return Results.Problem($"House Id of DTO {dto.HouseId} doesn't match with URL data {houseId}", 
+//             statusCode: StatusCodes.Status400BadRequest);
+//     if (!MiniValidator.TryValidate(dto, out var errors))
+//         return Results.ValidationProblem(errors);
+//     var newBid = await repo.Add(dto);
 
-     //*the type of "out var errors" is dictionary of string array. 
-     if( !MiniValidator.TryValidate(dto, out var errors)) 
-       return Results.ValidationProblem(errors);
+//     //*return where new bid can be found: "/houses/{newBid.HouseId}/bids"
+//     return Results.Created($"/houses/{newBid.HouseId}/bids", newBid);
 
-     var newBid = await repo.Add(dto);
+// }).ProducesValidationProblem()
+//   .ProducesProblem(400)
+//   .Produces<BidDto>(StatusCodes.Status201Created);
 
-     //*return where new bid can be found: "/houses/{newBid.HouseId}/bids"
-     return Results.Created($"/houses/{newBid.HouseId}/bids", newBid);
-     
-     //*Then a the metadata for Swagger so that it knows EP produces a 404 
-     //*and ProducesValidationProblem() and StatusCodes.Status201Created
-   }).ProducesValidationProblem()
-     .ProducesProblem(400)
-     .Produces<BidDto>(StatusCodes.Status201Created);
-    
+            app.MapPost("/house/{houseId:int}/bids", 
+           async (int houseId, [FromBody] BidDto dto, IBidRepository repo) => 
+        {   
+            if (dto.HouseId != houseId)
+                return Results.Problem($"House Id of DTO {dto.HouseId} doesn't match with URL data {houseId}", 
+                    statusCode: StatusCodes.Status400BadRequest);
+            if (!MiniValidator.TryValidate(dto, out var errors))
+                return Results.ValidationProblem(errors);
+            var newBid = await repo.Add(dto);
+            return Results.Created($"/houses/{newBid.HouseId}/bids", newBid);
+        }).ProducesValidationProblem().ProducesProblem(400).Produces<BidDto>(StatusCodes.Status201Created);
+
    //*The class gets a littlebit bloated now. To solve this problem we can 
    //* create static class WebApplicationHouseExtensions  in /api
 app.Run();
